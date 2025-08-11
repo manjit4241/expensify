@@ -5,7 +5,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: '#A8E6CF',
+        tabBarActiveTintColor: '#363f3cff',
         tabBarInactiveTintColor: '#ccc',
         tabBarStyle: {
           backgroundColor: '#fff',
@@ -41,15 +41,6 @@ export default function TabLayout() {
           title: 'Add',
           tabBarIcon: ({ color, size }) => (
             <MaterialIcons name="add-circle" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="notifications"
-        options={{
-          title: 'Notifications',
-          tabBarIcon: ({ color, size }) => (
-            <MaterialIcons name="notifications" size={size} color={color} />
           ),
         }}
       />

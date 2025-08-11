@@ -1,13 +1,25 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Pressable, StyleSheet, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
+  Alert,
+  TouchableOpacity
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Ionicons } from '@expo/vector-icons';
 
 const Login = () => {
   const router = useRouter();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleLogin = async () => {
     if (!username) {
@@ -20,37 +32,36 @@ const Login = () => {
     }
 
     try {
-      const response = await fetch('https://expensify-api-8g94.onrender.com/api/v1/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: username,
-          password: password,
-        }),
-      });
+      const response = await fetch(
+        'https://expensify-api-8g94.onrender.com/api/v1/login',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: username,
+            password: password,
+          }),
+        }
+      );
 
       const data = await response.json();
       console.log('Login response:', data);
 
       if (response.ok) {
-        // Store user data and token in AsyncStorage
         try {
           await AsyncStorage.setItem('authToken', data.token);
           await AsyncStorage.setItem('user', JSON.stringify(data.user));
-          
+
           console.log('Login successful, stored token and user');
-          
-          // Show success message and manually navigate
+
           Alert.alert('Success', 'Login successful!', [
             {
               text: 'OK',
               onPress: () => {
-                // Force navigation to tabs
                 router.replace('/(tabs)');
-              }
-            }
+              },
+            },
           ]);
-          
         } catch (storageError) {
           console.error('Storage error:', storageError);
           Alert.alert('Error', 'Failed to save login data');
@@ -72,7 +83,7 @@ const Login = () => {
       >
         <Text style={styles.title}>Welcome Back</Text>
         <Text style={styles.subtitle}>Login to continue</Text>
-        
+
         <TextInput
           style={styles.input}
           placeholder="Email"
@@ -81,15 +92,26 @@ const Login = () => {
           onChangeText={setUsername}
           keyboardType="email-address"
         />
-        <TextInput
-          style={styles.input}
-          placeholder="Password"
-          placeholderTextColor="#999"
-          secureTextEntry
-          value={password}
-          onChangeText={setPassword}
-        />
-        
+
+        {/* Password input with eye toggle */}
+        <View style={styles.passwordContainer}>
+          <TextInput
+            style={styles.passwordInput}
+            placeholder="Password"
+            placeholderTextColor="#999"
+            secureTextEntry={!showPassword}
+            value={password}
+            onChangeText={setPassword}
+          />
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+            <Ionicons
+              name={showPassword ? 'eye-off' : 'eye'}
+              size={24}
+              color="#999"
+            />
+          </TouchableOpacity>
+        </View>
+
         <Pressable style={styles.loginButton} onPress={handleLogin}>
           <Text style={styles.loginText}>Login</Text>
         </Pressable>
@@ -107,55 +129,73 @@ export default Login;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F5E7D1", // Same beige background as signup
-    alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: '#F5E7D1',
+    alignItems: 'center',
+    justifyContent: 'center',
     padding: 20,
   },
   innerContainer: {
-    width: '90%', // Match signup page width
-    alignItems: 'center'
+    width: '90%',
+    alignItems: 'center',
   },
   title: {
-    fontSize: 26, // Match signup page title size
-    fontWeight: "bold",
+    fontSize: 26,
+    fontWeight: 'bold',
     marginBottom: 5,
-    color: "#333", // Dark text for better contrast
+    color: '#333',
   },
   subtitle: {
     fontSize: 16,
-    color: "#666",
+    color: '#666',
     marginBottom: 30,
   },
   input: {
-    width: "100%", // Full width within container
-    backgroundColor: "white", // White background like signup
+    width: '100%',
+    backgroundColor: 'white',
     padding: 15,
-    marginVertical: 8, // Match signup spacing
+    marginVertical: 8,
     borderRadius: 10,
     fontSize: 16,
-    shadowColor: "#000",
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    elevation: 2, // Match signup elevation
+    elevation: 2,
+  },
+  passwordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    backgroundColor: 'white',
+    paddingHorizontal: 15,
+    borderRadius: 10,
+    marginVertical: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    elevation: 2,
+  },
+  passwordInput: {
+    flex: 1,
+    paddingVertical: 15,
+    fontSize: 16,
   },
   loginButton: {
-    backgroundColor: "#D4A373", // Same brown color as signup
+    backgroundColor: '#D4A373',
     padding: 15,
     borderRadius: 10,
-    width: "100%",
-    alignItems: "center",
-    marginTop: 15, // Match signup spacing
+    width: '100%',
+    alignItems: 'center',
+    marginTop: 15,
   },
   loginText: {
-    color: "white",
+    color: 'white',
     fontSize: 18,
-    fontWeight: "bold",
+    fontWeight: 'bold',
   },
   signupText: {
-    marginTop: 15, // Match signup spacing
+    marginTop: 15,
     fontSize: 16,
-    color: "#8B5E3C", // Same brown color as signup link
-    textDecorationLine: "underline",
+    color: '#8B5E3C',
+    textDecorationLine: 'underline',
   },
 });
